@@ -15,7 +15,8 @@ from .TTS.tts.configs.xtts_config import XttsConfig
 now_dir = os.path.dirname(os.path.abspath(__file__))
 input_path = folder_paths.get_input_directory()
 output_path = folder_paths.get_output_directory()
-pretrained_models_path = os.path.join(now_dir, "pretrained_models")
+pretrained_models_path = os.path.join(folder_paths.models_dir,"XTTS")
+cache_dir = "/stable-diffusion-cache/models/XTTS"
 os.makedirs(pretrained_models_path, exist_ok=True)
 
 language_list = ["en","es","fr","de","it","pt","pl","tr","ru",
@@ -77,8 +78,11 @@ class XTTS_INFER_SRT:
         xtts_tmp_path = os.path.join(output_path, 'xtts')
         os.makedirs(xtts_tmp_path, exist_ok=True)
         if not os.path.isfile(os.path.join(pretrained_models_path,"model.pth")):
-            print("Downloading model...")
-            snapshot_download(repo_id="coqui/XTTS-v2",revision="v2.0.3",local_dir=pretrained_models_path)
+            if os.path.exists(cache_dir):
+                pretrained_models_path = cache_dir
+            else:
+                print("Downloading model...")
+                snapshot_download(repo_id="coqui/XTTS-v2",revision="v2.0.3",local_dir=pretrained_models_path)
         print("Loading model...")
         config = XttsConfig()
         config.load_json(os.path.join(pretrained_models_path, "config.json"))
