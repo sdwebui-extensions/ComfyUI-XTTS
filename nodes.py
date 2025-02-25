@@ -3,14 +3,7 @@ import time
 import torch
 import torchaudio
 import folder_paths
-import cuda_malloc
-from srt import parse as SrtPare
 from pydub import AudioSegment
-import audiotsm
-import audiotsm.io.wav
-from huggingface_hub import snapshot_download
-from .TTS.tts.models.xtts import Xtts
-from .TTS.tts.configs.xtts_config import XttsConfig
 
 now_dir = os.path.dirname(os.path.abspath(__file__))
 input_path = folder_paths.get_input_directory()
@@ -75,6 +68,11 @@ class XTTS_INFER_SRT:
     def get_wav_tts(self,text,prompt_audio,language,if_mutiple_speaker,
                     temperature,length_penalty,
                     repetition_penalty,top_k,top_p,speed):
+        import cuda_malloc
+        from .TTS.tts.models.xtts import Xtts
+        from .TTS.tts.configs.xtts_config import XttsConfig
+        from srt import parse as SrtPare
+        from huggingface_hub import snapshot_download
         xtts_tmp_path = os.path.join(output_path, 'xtts')
         os.makedirs(xtts_tmp_path, exist_ok=True)
         if not os.path.isfile(os.path.join(pretrained_models_path,"model.pth")):
@@ -174,6 +172,8 @@ class XTTS_INFER_SRT:
         return (infer_audio,)
     
     def map_vocal(self,audio:AudioSegment,ratio:float,dur_time:float,wav_name:str,temp_folder:str):
+        import audiotsm
+        import audiotsm.io.wav
         tmp_path = f"{temp_folder}/map_{wav_name}"
         audio.export(tmp_path, format="wav")
         
@@ -241,6 +241,10 @@ class XTTS_INFER:
 
     def get_wav_tts(self, audio, text,language,temperature,length_penalty,
                     repetition_penalty,top_k,top_p,speed):
+        import cuda_malloc
+        from .TTS.tts.models.xtts import Xtts
+        from .TTS.tts.configs.xtts_config import XttsConfig
+        from huggingface_hub import snapshot_download
         if not os.path.isfile(os.path.join(pretrained_models_path,"model.pth")):
             print("Downloading model...")
             snapshot_download(repo_id="coqui/XTTS-v2",revision="v2.0.3",local_dir=pretrained_models_path)
